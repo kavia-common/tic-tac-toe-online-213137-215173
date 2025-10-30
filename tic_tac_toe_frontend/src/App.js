@@ -1,49 +1,80 @@
-import React, { useState, useEffect } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import Board from './components/Board';
+import Controls from './components/Controls';
+import { useTicTacToe } from './hooks/useTicTacToe';
 
 // PUBLIC_INTERFACE
-function App() {
-  const [theme, setTheme] = useState('light');
-
-  // Effect to apply theme to document element
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-  }, [theme]);
-
-  // PUBLIC_INTERFACE
-  const toggleTheme = () => {
-    setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
-  };
+export default function App() {
+  /** Root Game container with Ocean Professional layout */
+  const {
+    board,
+    xIsNext,
+    status,
+    winner,
+    winningLine,
+    onSquareClick,
+    restart,
+    history,
+    jumpTo,
+    mode,
+    setMode,
+    playerMark,
+    setPlayerMark,
+  } = useTicTacToe();
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <button 
-          className="theme-toggle" 
-          onClick={toggleTheme}
-          aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-        >
-          {theme === 'light' ? '🌙 Dark' : '☀️ Light'}
-        </button>
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <p>
-          Current theme: <strong>{theme}</strong>
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="container">
+      <div className="card">
+        <div className="header">
+          <div className="title">
+            Tic Tac Toe
+            <span className="badge">Ocean Professional</span>
+          </div>
+          <div className="controls">
+            <button className="btn ghost" onClick={restart} aria-label="Restart game">↻ Restart</button>
+          </div>
+        </div>
+        <div className="layout">
+          <section className="board-wrap" aria-label="Game board">
+            <div
+              className="status"
+              role="status"
+              aria-live="polite"
+            >
+              <span className={winner ? 'ok' : 'warn'}>{status}</span>
+            </div>
+            <Board
+              squares={board}
+              onClick={onSquareClick}
+              winningLine={winningLine}
+            />
+          </section>
+          <aside className="panel" aria-label="Controls and move history">
+            <Controls
+              mode={mode}
+              setMode={setMode}
+              playerMark={playerMark}
+              setPlayerMark={setPlayerMark}
+              xIsNext={xIsNext}
+              restart={restart}
+            />
+            <div className="row">
+              <strong>Move History</strong>
+              <ul className="history" aria-label="Move history">
+                {history.map((_, move) => {
+                  const label = move ? `Go to move #${move}` : 'Go to game start';
+                  return (
+                    <li key={move}>
+                      <span>{move ? `Move ${move}` : 'Start'}</span>
+                      <button onClick={() => jumpTo(move)} aria-label={label}>{label}</button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          </aside>
+        </div>
+      </div>
     </div>
   );
 }
-
-export default App;
